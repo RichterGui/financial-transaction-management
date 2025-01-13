@@ -3,9 +3,7 @@ import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/createUser.dto';
 import { hash, compare } from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { config } from 'dotenv';
 import { LoginDto } from './dto/login.dto';
-config();
 
 @Injectable()
 export class AuthService {
@@ -44,6 +42,15 @@ export class AuthService {
     const token = this.generateJwt(user.id, user.role);
 
     return { token, expires: 86400 };
+  }
+
+  async validateUser(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
+    }
+
+    return user;
   }
 
   private async hashPasssword(password: string): Promise<string> {
